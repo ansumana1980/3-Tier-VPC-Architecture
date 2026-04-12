@@ -30,22 +30,27 @@ The infrastructure is designed using a **modular approach**, where the VPC is de
 ## 📂 Project Structure
 
 ```
-Jupiter-website-ecs/
+3-Tier-VPC-Architecture/
+├── modules/
+│   └── vpc/
+│       ├── main.tf
+│       ├── variables.tf
+│       └── outputs.tf
 │
+├── backend.tf
 ├── main.tf
+├── providers.tf
 ├── variables.tf
 ├── outputs.tf
-├── providers.tf
-├── backend.tf
-├── terraform.tfvars.example
-├── README.md
-├── .gitignore
 │
-└── modules/
-    └── vpc/
-        ├── main.tf
-        ├── variables.tf
-        └── outputs.tf
+├── terraform.tfvars.example   ✅ 
+│
+├── README.md
+├── OVERVIEW.md           
+├── backend-aws-cli-setup.md  ✅ 
+│
+├── .gitignore
+├── .terraform.lock.hcl
 ```
 
 ---
