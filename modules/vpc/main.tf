@@ -1,3 +1,4 @@
+
 # Create VPC
 resource "aws_vpc" "vpc" {
   cidr_block           = var.vpc_cidr_block
@@ -5,6 +6,10 @@ resource "aws_vpc" "vpc" {
   enable_dns_hostnames = var.enable_dns_hostnames
   enable_dns_support   = var.enable_dns_support
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> f4440188ab6c253222ef11af85a5fdec83784071
   tags = merge(var.common_tags, {
     Name = "${var.project_name}-${var.environment}-vpc"
   })
@@ -17,7 +22,11 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.vpc.id
 
   tags = merge(var.common_tags, {
+<<<<<<< HEAD
     Name = "${var.project_name}-${var.environment}-igw"
+=======
+    Name = "${var.project_name}-${var.environment}-vpc"
+>>>>>>> f4440188ab6c253222ef11af85a5fdec83784071
   })
 }
 
@@ -79,6 +88,7 @@ resource "aws_route_table_association" "public_subnet_az2_assoc" {
 # Create Private subnets in availability zones 1 and 2
 resource "aws_subnet" "private_subnet_az1" {
   vpc_id                  = aws_vpc.vpc.id
+<<<<<<< HEAD
   cidr_block              = var.private_app_subnet_az1_cidr
   availability_zone       = var.availability_zone_1
   map_public_ip_on_launch = var.private_map_public_ip_on_launch
@@ -86,11 +96,20 @@ resource "aws_subnet" "private_subnet_az1" {
   tags = merge(var.common_tags, {
     Name = "${var.project_name}-${var.environment}-private-app-subnet-az1"
   })
+=======
+  cidr_block              = var.private_subnet_az1_cidr
+  availability_zone       = var.availability_zone_1
+  map_public_ip_on_launch = var.private_map_public_ip_on_launch
+>>>>>>> f4440188ab6c253222ef11af85a5fdec83784071
 
+  tags = merge(var.common_tags, {
+    Name = "${var.project_name}-${var.environment}-private-subnet-az1"
+  })
 }
 
 resource "aws_subnet" "private_subnet_az2" {
   vpc_id                  = aws_vpc.vpc.id
+<<<<<<< HEAD
   cidr_block              = var.private_app_subnet_az2_cidr
   availability_zone       = var.availability_zone_2
   map_public_ip_on_launch = var.private_map_public_ip_on_launch
@@ -124,6 +143,14 @@ resource "aws_subnet" "private_data_subnet_az2" {
 
   tags = merge(var.common_tags, {
     Name = "${var.project_name}-${var.environment}-private-data-subnet-az2"
+=======
+  cidr_block              = var.private_subnet_az2_cidr
+  availability_zone       = var.availability_zone_2
+  map_public_ip_on_launch = var.private_map_public_ip_on_launch
+
+  tags = merge(var.common_tags, {
+    Name = "${var.project_name}-${var.environment}-private-subnet-az2"
+>>>>>>> f4440188ab6c253222ef11af85a5fdec83784071
   })
 }
 
