@@ -4,6 +4,12 @@
 region        = "us-east-1"
 project_name  = "your-project-name"
 environment   = "dev"
+common_tags = {
+  Project     = "ansu-3-tier-vpc"
+  Environment = "dev"
+  ManagedBy   = "Terraform"
+  Owner       = "Ansu"
+}
 
 # -----------------------------
 # VPC CONFIGURATION
