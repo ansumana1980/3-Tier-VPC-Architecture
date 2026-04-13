@@ -1,223 +1,350 @@
-# 🚀 Terraform AWS VPC Infrastructure (Modular Design)
+---
 
-## 📌 Overview
+# 3-Tier AWS VPC Architecture with Terraform
 
-This project provisions a fully functional AWS networking foundation using **Terraform**, following modular and reusable best practices.
-
-It creates a production-style **VPC architecture** with:
-
-* Public and private subnets across multiple Availability Zones
-* Internet Gateway and route tables
-* Logical separation of application and data tiers
+This project provisions a **3-tier AWS VPC architecture** using Terraform. It creates a reusable and modular network foundation with **public, application, and data subnets across two Availability Zones**, along with the routing components needed for internet access and secure outbound connectivity.
 
 ---
 
-## 🏗️ Architecture
+## Project Structure
 
-The infrastructure is designed using a **modular approach**, where the VPC is defined as a reusable Terraform module.
-
-### Key Components:
-
-* VPC
-* Public Subnets (AZ1 & AZ2)
-* Private App Subnets (AZ1 & AZ2)
-* Private Data Subnets (AZ1 & AZ2)
-* Internet Gateway
-* Route Tables (Public & Private)
-
----
-
-## 📂 Project Structure
-
-```
-2-Tier-VPC-Architecture/
+```bash
+3-Tier-VPC-Architecture/
+├── .terraform/
 ├── modules/
 │   └── vpc/
 │       ├── main.tf
-│       ├── variables.tf
-│       └── outputs.tf
-│
-├── backend.tf
-├── main.tf
-├── providers.tf
-├── variables.tf
-├── outputs.tf
-│
-├── terraform.tfvars.example   
-│
-├── README.md
-├── OVERVIEW.md           
-├── backend-aws-cli-setup.md  
-│
+│       ├── outputs.tf
+│       └── variables.tf
 ├── .gitignore
 ├── .terraform.lock.hcl
+├── backend-aws-cli-setup.md
+├── backend.tf
+├── main.tf
+├── outputs.tf
+├── OVERVIEW.md
+├── providers.tf
+├── README.md
+├── terraform.tfvars
+├── terraform.tfvars.example
+├── tplan
+└── variables.tf
 ```
 
 ---
 
-## ⚙️ Prerequisites
+## Structure explanation
 
-* Terraform installed (>= 1.x)
-* AWS CLI configured
-* AWS account with appropriate permissions
+* **modules/vpc/**
+  Contains the reusable VPC module that creates the VPC, subnets, route tables, Internet Gateway, NAT Gateway, and subnet associations.
 
----
+* **backend.tf**
+  Configures the remote Terraform backend using S3 and DynamoDB.
 
-## 🔧 Setup Instructions
+* **main.tf**
+  Calls the VPC module and passes all required variables from the root module.
 
-### 1. Clone the repository
+* **variables.tf**
+  Declares input variables used by the root module.
 
-```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
-cd 2-Tier-VPC-Architecture
-```
+* **terraform.tfvars**
+  Stores actual environment-specific values for this deployment.
 
-### 2. Create your variable file
+* **terraform.tfvars.example**
+  Template file showing the expected input format for reuse.
 
-Copy the example file:
+* **outputs.tf**
+  Exposes important resource IDs and values after deployment.
 
-```bash
-cp terraform.tfvars.example terraform.tfvars
-```
+* **providers.tf**
+  Defines the Terraform and AWS provider configuration.
 
-Update values as needed.
-
----
-
-### 3. Initialize Terraform
-
-```bash
-terraform init
-```
+* **OVERVIEW.md / README.md**
+  Project documentation and architecture explanation.
 
 ---
 
-### 4. Validate configuration
+## What “3-tier” means
 
-```bash
-terraform validate
-```
+This architecture is divided into three layers:
 
----
+1. **Public tier (Web layer)**
+2. **Application tier**
+3. **Data tier**
 
-### 5. Plan deployment
+This design improves:
 
-```bash
-terraform plan
-```
-
----
-
-### 6. Apply infrastructure
-
-```bash
-terraform apply
-```
+* security
+* scalability
+* separation of concerns
+* high availability
 
 ---
 
-## 🔐 State Management
+## 1. The VPC
 
-This project supports remote backend configuration using:
+At the center of the design is the **VPC (Virtual Private Cloud)**.
 
-* **S3 (state storage)**
-* **DynamoDB (state locking)**
+The VPC:
 
-Configured in:
+* has its own CIDR block
+* contains all subnets (public, app, data)
+* includes route tables
+* is attached to an Internet Gateway
 
-```
-backend.tf
-```
-
----
-
-## 💡 Key Design Decisions
-
-* **Modular architecture** for reusability
-* **Multi-AZ deployment** for high availability
-* Separation of:
-
-  * Public layer (internet-facing)
-  * Application layer
-  * Data layer
-* Parameterized variables for environment flexibility
+Think of the VPC as your **private AWS network boundary**.
 
 ---
 
-## 🚫 Security Best Practices
+## 2. Availability Zones
 
-The following files are excluded from version control:
+This architecture uses two explicit Availability Zones:
 
-* `terraform.tfvars`
-* `terraform.tfstate`
-* `.terraform/`
+* `availability_zone_1`
+* `availability_zone_2`
 
----
+Example:
 
-## 📊 Outputs
+* `us-east-1a`
+* `us-east-1b`
 
-After deployment, Terraform provides:
+Benefits:
 
-* VPC ID
-* Subnet IDs (public, private app, private data)
-* Availability Zones
-* Internet Gateway ID
-
----
-
-## 🧠 Future Enhancements
-
-* NAT Gateway for private subnet internet access
-* Security Groups and NACLs
-* ECS / EC2 deployment
-* Load Balancer integration
-* CI/CD pipeline (GitHub Actions)
+* high availability
+* fault tolerance
+* resilience
 
 ---
 
-## 👤 Author
+## 3. Public Tier (Web Layer)
 
-**Ansu Rogers**
-Salesforce | DevOps | Cloud Infrastructure
+You created two public subnets:
 
----
+* `public_subnet_az1`
+* `public_subnet_az2`
 
----
+These are public because:
 
-# 🧹 2. .gitignore (Copy & Paste)
+* associated with a **public route table**
+* route `0.0.0.0/0 → Internet Gateway`
+* `map_public_ip_on_launch = true`
 
-```gitignore
-# Terraform
-.terraform/
-*.tfstate
-*.tfstate.*
-crash.log
+### Typical resources
 
-# Variables (sensitive)
-terraform.tfvars
-*.auto.tfvars
+* Application Load Balancer (ALB)
+* NAT Gateway
+* Bastion host
 
-# Plan files
-*.tfplan
-
-# Lock file (optional)
-.terraform.lock.hcl
-
-# OS / Editor
-.DS_Store
-.vscode/
-```
+This is your **internet-facing layer**.
 
 ---
 
-# 📄 3. terraform.tfvars.example
+## 4. Internet Gateway
+
+The Internet Gateway:
+
+* allows inbound internet traffic
+* allows outbound internet traffic
+* is attached to the VPC
+
+Without it → no internet access.
+
+---
+
+## 5. Public Route Table
+
+Routes:
+
+* `0.0.0.0/0 → Internet Gateway`
+
+Associated with both public subnets.
+
+### Result
+
+Public resources are reachable from the internet.
+
+---
+
+## 6. Application Tier (Private App Subnets)
+
+You created:
+
+* `private_app_subnet_az1`
+* `private_app_subnet_az2`
+
+These are private because:
+
+* no public IP assignment
+* no direct route to Internet Gateway
+
+### Typical resources
+
+* EC2 app servers
+* ECS services
+* APIs
+* backend services
+
+These handle business logic.
+
+---
+
+## 7. Data Tier (Private Data Subnets)
+
+You created:
+
+* `private_data_subnet_az1`
+* `private_data_subnet_az2`
+
+These are **even more restricted**.
+
+### Typical resources
+
+* RDS databases
+* Redis / ElastiCache
+* internal storage services
+
+These should **never be internet-facing**.
+
+---
+
+## 8. NAT Gateway
+
+The NAT Gateway is placed in a public subnet.
+
+It allows:
+
+* outbound internet access from private subnets
+* software updates and external API calls
+
+But:
+
+* blocks inbound internet traffic
+
+---
+
+## 9. Private Route Tables
+
+Private subnets use:
+
+* `0.0.0.0/0 → NAT Gateway`
+
+### Result
+
+* App + Data layers can reach internet outbound
+* No inbound internet access
+
+---
+
+## 10. Traffic Flow
+
+### Inbound flow
+
+Internet
+→ Internet Gateway
+→ Public subnet (ALB)
+→ App subnet
+→ Data subnet
+
+---
+
+### Outbound flow
+
+App/Data subnet
+→ NAT Gateway
+→ Internet
+
+---
+
+## 11. Why this design is strong
+
+### Security
+
+* Database tier is fully isolated
+* Application tier is protected
+* Only public tier is exposed
+
+---
+
+### High Availability
+
+* All tiers span **2 Availability Zones**
+
+---
+
+### Scalability
+
+You can easily add:
+
+* ALB → Public tier
+* Auto Scaling → App tier
+* RDS Multi-AZ → Data tier
+
+---
+
+### Reusability
+
+* Built as a Terraform module
+* Easily reused across environments
+
+---
+
+## 12. Terraform Design
+
+### Root module
+
+Responsible for:
+
+* provider config
+* backend config
+* variable passing
+* module call
+* outputs
+
+---
+
+### VPC module
+
+Responsible for:
+
+* VPC
+* subnets (all tiers)
+* IGW
+* NAT Gateway
+* route tables
+* associations
+
+---
+
+## 13. Tagging Strategy
+
+Centralized tagging:
 
 ```hcl
-region                       = "us-east-1"
-project_name                 = "jupiter-website"
-environment                  = "dev"
+common_tags = {
+  Project      = "ansu-3-tier-vpc"
+  Environment  = "dev"
+  ManagedBy    = "Terraform"
+  Owner        = "Ansu"
+  Architecture = "3-tier"
+}
+```
 
-vpc_cidr_block               = "10.0.0.0/16"
+Example naming:
+
+```hcl
+Name = "ansu-3-tier-vpc-dev-private-data-subnet-az1"
+```
+
+---
+
+## 14. Example Input Values
+
+```hcl
+region       = "us-east-1"
+project_name = "ansu-3-tier-vpc"
+environment  = "dev"
+
+vpc_cidr_block = "10.0.0.0/16"
 
 public_subnet_az1_cidr       = "10.0.1.0/24"
 public_subnet_az2_cidr       = "10.0.2.0/24"
@@ -227,19 +354,46 @@ private_app_subnet_az2_cidr  = "10.0.4.0/24"
 
 private_data_subnet_az1_cidr = "10.0.5.0/24"
 private_data_subnet_az2_cidr = "10.0.6.0/24"
+
+availability_zone_1 = "us-east-1a"
+availability_zone_2 = "us-east-1b"
+
+enable_dns_support   = true
+enable_dns_hostnames = true
+
+map_public_ip_on_launch         = true
+private_map_public_ip_on_launch = false
 ```
 
 ---
 
-# 🧠 4. How to Talk About This in Interviews (🔥 THIS IS GOLD)
+## 15. Commands
 
-When they ask:
+```bash
+terraform init -reconfigure
+terraform fmt -recursive
+terraform validate
+terraform plan
+terraform apply
+terraform destroy
+```
 
-👉 *“Tell me about a Terraform project you built”*
+---
 
-Say this:
+## 16. Interview Explanation (🔥)
 
-> I built a modular Terraform project to provision a multi-AZ VPC architecture in AWS. I separated the infrastructure into reusable modules and implemented public and private subnet segmentation for application and data layers. I also configured remote state using S3 and DynamoDB for state locking, and followed best practices by excluding sensitive files like tfvars and state from version control. The project is structured to be scalable and ready for future integrations like ECS and load balancing.
+> I built a modular 3-tier VPC architecture in AWS using Terraform. The design separates public, application, and data layers across multiple availability zones for high availability and security. I implemented an Internet Gateway for public access, a NAT Gateway for outbound private subnet connectivity, and structured the project using reusable modules and centralized tagging. The architecture is scalable and ready for load balancing, compute, and database integrations.
 
+---
 
+## 17. Future Enhancements
+
+* Application Load Balancer (ALB)
+* EC2 / ECS services
+* RDS database layer
+* Security groups module
+* Monitoring & logging
+* CI/CD pipelines
+
+---
 
