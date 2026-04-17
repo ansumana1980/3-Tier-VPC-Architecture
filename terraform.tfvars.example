@@ -1,55 +1,29 @@
-# ==========================================
-# GLOBAL CONFIGURATION
-<<<<<<< HEAD
-# -----------------------------
-region        = "us-east-1"
-project_name  = "your-project-name"
-environment   = "dev"
-common_tags = {
-  Project     = "ansu-3-tier-vpc"
-  Environment = "dev"
-  ManagedBy   = "Terraform"
-  Owner       = "Ansu"
-}
-=======
-# ==========================================
 region       = "us-east-1"
-project_name = "your-project-name"
+project_name = "ansu-3-tier-vpc"
 environment  = "dev"
->>>>>>> f4440188ab6c253222ef11af85a5fdec83784071
 
-# Common tags applied to all resources
 common_tags = {
-  Project      = "your-project-name"
+  Project      = "ansu-3-tier-vpc"
   Environment  = "dev"
   ManagedBy    = "Terraform"
-  Owner        = "your-name"
-  Architecture = "2-tier"
+  Owner        = "Ansu"
+  Architecture = "3-tier"
 }
 
-# ==========================================
-# AVAILABILITY ZONES
-# ==========================================
-az1 = "us-east-1a"
-az2 = "us-east-1b"
+vpc_cidr_block = "10.0.0.0/16"
 
-# ==========================================
-# VPC CONFIGURATION
-# ==========================================
-vpc_cidr_block       = "10.0.0.0/16"
+public_subnet_az1_cidr       = "10.0.1.0/24"
+public_subnet_az2_cidr       = "10.0.2.0/24"
+private_app_subnet_az1_cidr  = "10.0.3.0/24"
+private_app_subnet_az2_cidr  = "10.0.4.0/24"
+private_data_subnet_az1_cidr = "10.0.5.0/24"
+private_data_subnet_az2_cidr = "10.0.6.0/24"
+
+availability_zone_1 = "us-east-1a"
+availability_zone_2 = "us-east-1b"
+
 enable_dns_support   = true
 enable_dns_hostnames = true
 
-# ==========================================
-# PUBLIC SUBNETS (WEB / ALB TIER)
-# ==========================================
-public_subnet_az1_cidr  = "10.0.1.0/24"
-public_subnet_az2_cidr  = "10.0.2.0/24"
-map_public_ip_on_launch = true
-
-# ==========================================
-# PRIVATE SUBNETS (APP TIER)
-# ==========================================
-private_subnet_az1_cidr         = "10.0.3.0/24"
-private_subnet_az2_cidr         = "10.0.4.0/24"
+map_public_ip_on_launch         = true
 private_map_public_ip_on_launch = false

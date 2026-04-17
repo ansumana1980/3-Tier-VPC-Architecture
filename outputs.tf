@@ -22,12 +22,20 @@ output "public_subnet_az2_id" {
   value = module.vpc.public_subnet_az2_id
 }
 
-output "private_subnet_az1_id" {
-  value = module.vpc.private_subnet_az1_id
+output "private_app_subnet_az1_id" {
+  value = module.vpc.private_app_subnet_az1_id
 }
 
-output "private_subnet_az2_id" {
-  value = module.vpc.private_subnet_az2_id
+output "private_app_subnet_az2_id" {
+  value = module.vpc.private_app_subnet_az2_id
+}
+
+output "private_data_subnet_az1_id" {
+  value = module.vpc.private_data_subnet_az1_id
+}
+
+output "private_data_subnet_az2_id" {
+  value = module.vpc.private_data_subnet_az2_id
 }
 
 output "availability_zone_1" {
